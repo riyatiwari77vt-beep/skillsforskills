@@ -15,10 +15,20 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve CSS files from FRONTEND/css at /css
-app.use('/css', express.static(path.join(__dirname, '..', 'FRONTEND', 'css')));
-// Serve JS files from FRONTEND/js at /js
-app.use('/js', express.static(path.join(__dirname, '..', 'FRONTEND', 'js')));
+// Determine the correct frontend directory path (handling both lowercase and uppercase variations due to Git casing behavior on Windows/Linux)
+const fs = require('fs');
+let frontendDir = path.join(__dirname, '..', 'frontend');
+if (!fs.existsSync(frontendDir)) {
+  const uppercaseDir = path.join(__dirname, '..', 'FRONTEND');
+  if (fs.existsSync(uppercaseDir)) {
+    frontendDir = uppercaseDir;
+  }
+}
+
+// Serve CSS files from CSS directory
+app.use('/css', express.static(path.join(frontendDir, 'css')));
+// Serve JS files from JS directory
+app.use('/js', express.static(path.join(frontendDir, 'js')));
 
 // API Routes
 const authRoutes = require('./routes/authRoutes');
@@ -26,12 +36,12 @@ const profileRoutes = require('./routes/profileRoutes');
 app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
 
-// Serve HTML files from FRONTEND/html
-app.use(express.static(path.join(__dirname, '..', 'FRONTEND', 'html')));
+// Serve HTML files from HTML directory
+app.use(express.static(path.join(frontendDir, 'html')));
 
 // Fallback to index.html for any unknown routes (SPA support)
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'FRONTEND', 'html', 'index.html'));
+  res.sendFile(path.join(frontendDir, 'html', 'index.html'));
 });
 
 app.listen(PORT, () => {
