@@ -14,3 +14,10 @@ database/*.db
 # OS generated files
 .DS_Store
 Thumbs.db
+
+# Yarn
+yarn-debug.log*
+yarn-error.log*
+.yarn/
+.pnp*
+
