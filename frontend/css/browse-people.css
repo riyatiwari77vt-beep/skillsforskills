@@ -1,0 +1,260 @@
+/* Browse People Specific Styles */
+
+/* Category Filter Chips */
+.filter-header {
+    padding: 0 1.5rem 1rem 1.5rem;
+}
+
+.category-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+.filter-chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: background 0.3s, border-color 0.3s, color 0.3s;
+}
+
+.filter-chip:hover {
+    border-color: var(--accent-purple);
+    color: var(--accent-purple);
+}
+
+.filter-chip.active {
+    background: linear-gradient(135deg, #7C3AED, #A855F7);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 4px 10px rgba(124, 58, 237, 0.2);
+}
+
+/* Grid Layout */
+.people-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1.5rem;
+    padding: 0 1.5rem 2rem 1.5rem;
+}
+
+/* Teacher Card */
+.person-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.person-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Best Match Glow/Ribbon */
+.best-match-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: linear-gradient(135deg, #F59E0B, #D97706);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.25rem 0.6rem;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3);
+}
+
+/* Card Header */
+.card-profile-header {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.card-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ECE9FC;
+}
+
+.profile-title-area {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.profile-title-area h3 {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 0.15rem;
+}
+
+.username-tag {
+    font-size: 0.82rem;
+    color: var(--text-light);
+    margin-bottom: 0.2rem;
+}
+
+.rating-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.star-icon {
+    color: #F59E0B;
+    font-size: 0.95rem;
+}
+
+/* Card Bio */
+.card-bio {
+    font-size: 0.88rem;
+    color: var(--text-light);
+    line-height: 1.4;
+    margin-bottom: 1.2rem;
+    flex-grow: 1;
+}
+
+/* Skills Sections */
+.skills-group {
+    margin-bottom: 0.8rem;
+}
+
+.skills-group h4 {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.4rem;
+}
+
+.tags-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.mini-tag {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.55rem;
+    border-radius: 12px;
+}
+
+.mini-tag.teach {
+    background: #ECE9FC;
+    color: #6D28D9;
+}
+
+.mini-tag.learn {
+    background: #EFF6FF;
+    color: #1D4ED8;
+}
+
+/* Card Footer */
+.card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1.2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+}
+
+.cost-rate {
+    font-size: 0.85rem;
+    color: var(--text-light);
+}
+
+.cost-rate span {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: 1.15rem;
+    color: var(--accent-purple);
+}
+
+.btn-request {
+    background: linear-gradient(135deg, #7C3AED, #A855F7);
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 3px 8px rgba(124, 58, 237, 0.2);
+}
+
+.btn-request:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 12px rgba(124, 58, 237, 0.3);
+}
+
+.btn-request.sent {
+    background: #E2E8F0;
+    color: var(--text-light);
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+/* Responsive adjust */
+@media (max-width: 768px) {
+    .people-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Search Button Styles */
+.top-actions .search-bar {
+    display: flex;
+    align-items: center;
+    width: 320px !important;
+}
+
+.top-actions .search-bar input {
+    padding-right: 75px !important;
+}
+
+.search-btn {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: linear-gradient(135deg, #7C3AED, #A855F7);
+    color: #fff;
+    border: none;
+    padding: 0.45rem 1rem;
+    border-radius: var(--radius-pill);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+    box-shadow: 0 2px 5px rgba(124, 58, 237, 0.25);
+}
+
+.search-btn:hover {
+    background: #6D28D9;
+    transform: translateY(-50%) scale(1.02);
+}

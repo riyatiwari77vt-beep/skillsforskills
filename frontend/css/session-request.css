@@ -1,0 +1,236 @@
+/* Session Requests specific styles */
+
+.session-tab-header {
+    padding: 0 1.5rem 1.2rem 1.5rem;
+    display: flex;
+    gap: 1.2rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+}
+
+.session-tab-btn {
+    background: none;
+    border: none;
+    padding: 0.8rem 0.5rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-light);
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: color 0.3s;
+}
+
+.session-tab-btn:hover {
+    color: var(--accent-purple);
+}
+
+.session-tab-btn.active {
+    color: var(--accent-purple);
+}
+
+.session-tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2.5px;
+    background: var(--accent-purple);
+    border-radius: 2px;
+}
+
+.badge-count {
+    background: #ECE9FC;
+    color: #5B21B6;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.15rem 0.45rem;
+    border-radius: 10px;
+}
+
+.session-tab-btn.active .badge-count {
+    background: var(--accent-purple);
+    color: #fff;
+}
+
+/* Sessions Cards List */
+.sessions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0 1.5rem 2rem 1.5rem;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* Session Card */
+.session-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.2rem 1.5rem;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.session-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Profile Left Area */
+.session-left-area {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    flex: 1;
+}
+
+.session-user-img {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ECE9FC;
+}
+
+.session-info-details h3 {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 0.15rem;
+}
+
+.session-skill-label {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    margin-bottom: 0.3rem;
+}
+
+.session-skill-label span {
+    font-weight: 700;
+    color: var(--accent-purple);
+}
+
+.session-schedule {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.session-schedule span:first-child {
+    font-size: 0.95rem;
+}
+
+/* Right Status/Actions Area */
+.session-right-area {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+/* Action Buttons */
+.btn-action-accept {
+    background: #10B981;
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1.2rem;
+    border-radius: var(--radius-xs);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(16, 185, 129, 0.15);
+    transition: transform 0.2s, background 0.3s;
+}
+
+.btn-action-accept:hover {
+    background: #0D9668;
+    transform: translateY(-1px);
+}
+
+.btn-action-reject {
+    background: #EF4444;
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1.2rem;
+    border-radius: var(--radius-xs);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.15);
+    transition: transform 0.2s, background 0.3s;
+}
+
+.btn-action-reject:hover {
+    background: #DC2626;
+    transform: translateY(-1px);
+}
+
+.btn-action-meeting {
+    background: linear-gradient(135deg, #7C3AED, #A855F7);
+    color: #fff;
+    border: none;
+    padding: 0.55rem 1.4rem;
+    border-radius: var(--radius-xs);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(124, 58, 237, 0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-action-meeting:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 12px rgba(124, 58, 237, 0.3);
+}
+
+/* Status Badges */
+.status-badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.3rem 0.75rem;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.status-badge.pending {
+    background: #FEF3C7;
+    color: #D97706;
+}
+
+.status-badge.accepted {
+    background: #D1FAE5;
+    color: #065F46;
+}
+
+.status-badge.rejected {
+    background: #FEE2E2;
+    color: #991B1B;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .session-tab-header {
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+    }
+    .session-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    .session-right-area {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
