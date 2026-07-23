@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 2. Initialize requests from LocalStorage & upgrade if necessary
     let existingReqs = localStorage.getItem("session_requests");
-    if (!existingReqs || (JSON.parse(existingReqs).length > 0 && JSON.parse(existingReqs)[0].id === 201)) {
+    if (!existingReqs || (JSON.parse(existingReqs).length > 0 && (JSON.parse(existingReqs)[0].id === 201 || JSON.parse(existingReqs)[0].id === 101))) {
         localStorage.setItem("session_requests", JSON.stringify([]));
     }
 
@@ -43,11 +43,17 @@ function selectTab(e, tabName) {
 function renderRequests() {
     const listContainer = document.getElementById("sessionsList");
     const requests = JSON.parse(localStorage.getItem("session_requests")) || [];
+    const currentUser = JSON.parse(localStorage.getItem('user'));
+
+    if (!currentUser) {
+        listContainer.innerHTML = `<div style="text-align:center; padding: 2rem;">Please log in to view session requests.</div>`;
+        return;
+    }
 
     // Update Counts
-    const incomingCount = requests.filter(r => r.type === "incoming" && r.status === "pending").length;
-    const outgoingCount = requests.filter(r => r.type === "outgoing" && r.status === "pending").length;
-    const scheduledCount = requests.filter(r => r.status === "accepted").length;
+    const incomingCount = requests.filter(r => r.recipientId === currentUser.id && r.status === "pending").length;
+    const outgoingCount = requests.filter(r => r.senderId === currentUser.id && r.status === "pending").length;
+    const scheduledCount = requests.filter(r => r.status === "accepted" && (r.senderId === currentUser.id || r.recipientId === currentUser.id)).length;
 
     document.getElementById("incomingCount").textContent = incomingCount;
     document.getElementById("outgoingCount").textContent = outgoingCount;
@@ -58,11 +64,11 @@ function renderRequests() {
     // Filter by active tab
     let filtered = [];
     if (activeTab === "incoming") {
-        filtered = requests.filter(r => r.type === "incoming" && r.status === "pending");
+        filtered = requests.filter(r => r.recipientId === currentUser.id && r.status === "pending");
     } else if (activeTab === "outgoing") {
-        filtered = requests.filter(r => r.type === "outgoing" && r.status === "pending");
+        filtered = requests.filter(r => r.senderId === currentUser.id && r.status === "pending");
     } else if (activeTab === "scheduled") {
-        filtered = requests.filter(r => r.status === "accepted");
+        filtered = requests.filter(r => r.status === "accepted" && (r.senderId === currentUser.id || r.recipientId === currentUser.id));
     }
 
     if (filtered.length === 0) {
@@ -85,8 +91,12 @@ function renderRequests() {
         const options = { weekday: 'short', month: 'short', day: 'numeric' };
         const formattedDate = dateObj.toLocaleDateString('en-US', options);
 
+        const isIncoming = req.recipientId === currentUser.id;
+        const partnerName = isIncoming ? req.senderName : req.recipientName;
+        const partnerAvatar = isIncoming ? req.senderAvatar : req.recipientAvatar;
+
         // Header Skill Label wording
-        const roleLabel = req.type === "incoming" ? "Wants to learn" : "You requested to learn";
+        const roleLabel = isIncoming ? "Wants to learn" : "You requested to learn";
 
         // Action Buttons / Status layout
         let actionMarkup = "";
@@ -99,15 +109,15 @@ function renderRequests() {
             actionMarkup = `<span class="status-badge pending">Pending</span>`;
         } else if (activeTab === "scheduled") {
             actionMarkup = `
-                <button class="btn-action-meeting" onclick="launchMeeting('${req.name}', '${req.skill}')">💻 Launch Call</button>
+                <button class="btn-action-meeting" onclick="launchMeeting(${req.id})">💻 Launch Call</button>
             `;
         }
 
         card.innerHTML = `
             <div class="session-left-area">
-                <img src="${req.avatar}" alt="${req.name}" class="session-user-img">
+                <img src="${partnerAvatar}" alt="${partnerName}" class="session-user-img">
                 <div class="session-info-details">
-                    <h3>${req.name}</h3>
+                    <h3>${partnerName}</h3>
                     <div class="session-skill-label">${roleLabel} <span>${req.skill}</span></div>
                     <div class="session-schedule">
                         <span>🕒</span>
@@ -126,6 +136,11 @@ function renderRequests() {
 
 // Update Request Status (Accept / Decline)
 function updateStatus(reqId, newStatus) {
+    if (newStatus === "accepted") {
+        openScheduleModal(reqId);
+        return;
+    }
+
     const requests = JSON.parse(localStorage.getItem("session_requests")) || [];
     const index = requests.findIndex(r => r.id === reqId);
 
@@ -133,17 +148,87 @@ function updateStatus(reqId, newStatus) {
         requests[index].status = newStatus;
         localStorage.setItem("session_requests", JSON.stringify(requests));
 
-        if (newStatus === "accepted") {
-            alert(`Session Scheduled with ${requests[index].name}! Added to Scheduled Sessions.`);
-        } else {
-            alert(`Session Request from ${requests[index].name} declined.`);
-        }
-
+        const currentUser = JSON.parse(localStorage.getItem('user'));
+        const partnerName = requests[index].recipientId === currentUser.id ? requests[index].senderName : requests[index].recipientName;
+        alert(`Session Request from ${partnerName} declined.`);
         renderRequests();
     }
 }
 
-// Emulate calling meeting
-function launchMeeting(partnerName, skill) {
-    alert(`Connecting video call interface with ${partnerName} for trading "${skill}"...\nEnsure camera and microphone permissions are enabled!`);
+// Modal management
+function openScheduleModal(reqId) {
+    const requests = JSON.parse(localStorage.getItem("session_requests")) || [];
+    const req = requests.find(r => r.id === reqId);
+    if (!req) return;
+
+    const currentUser = JSON.parse(localStorage.getItem('user'));
+    const isIncoming = req.recipientId === currentUser.id;
+    const partnerName = isIncoming ? req.senderName : req.recipientName;
+    const partnerAvatar = isIncoming ? req.senderAvatar : req.recipientAvatar;
+
+    // Populate Modal Elements
+    document.getElementById("modalReqId").value = reqId;
+    document.getElementById("modalPartnerAvatar").src = partnerAvatar;
+    document.getElementById("modalPartnerAvatar").alt = partnerName;
+    document.getElementById("modalPartnerName").textContent = partnerName;
+
+    const skillLabelElement = document.getElementById("modalSessionSkillLabel");
+    const roleLabel = isIncoming ? "Wants to learn" : "You requested to learn";
+    skillLabelElement.innerHTML = `${roleLabel} <span>${req.skill}</span>`;
+
+    // Parse Date & prefill
+    document.getElementById("scheduleDateInput").value = req.date || new Date().toISOString().split('T')[0];
+
+    // Parse Time: e.g. "14:00 - 15:00"
+    const timeParts = (req.time || "14:00 - 15:00").split(" - ");
+    const startTime = timeParts[0] || "14:00";
+    const endTime = timeParts[1] || "15:00";
+
+    document.getElementById("scheduleStartTimeInput").value = startTime;
+    document.getElementById("scheduleEndTimeInput").value = endTime;
+
+    // Show modal
+    document.getElementById("scheduleModal").classList.add("active");
+}
+
+function closeScheduleModal() {
+    document.getElementById("scheduleModal").classList.remove("active");
+    document.getElementById("scheduleForm").reset();
+}
+
+function confirmSchedule(event) {
+    event.preventDefault();
+
+    const reqId = parseInt(document.getElementById("modalReqId").value, 10);
+    const selectedDate = document.getElementById("scheduleDateInput").value;
+    const startTime = document.getElementById("scheduleStartTimeInput").value;
+    const endTime = document.getElementById("scheduleEndTimeInput").value;
+
+    if (!selectedDate || !startTime || !endTime) {
+        alert("Please fill in all schedule fields.");
+        return;
+    }
+
+    const formattedTimeRange = `${startTime} - ${endTime}`;
+
+    const requests = JSON.parse(localStorage.getItem("session_requests")) || [];
+    const index = requests.findIndex(r => r.id === reqId);
+
+    if (index !== -1) {
+        requests[index].status = "accepted";
+        requests[index].date = selectedDate;
+        requests[index].time = formattedTimeRange;
+        localStorage.setItem("session_requests", JSON.stringify(requests));
+
+        const currentUser = JSON.parse(localStorage.getItem('user'));
+        const partnerName = requests[index].recipientId === currentUser.id ? requests[index].senderName : requests[index].recipientName;
+        alert(`Session Scheduled with ${partnerName} for ${selectedDate} at ${formattedTimeRange}!`);
+        closeScheduleModal();
+        renderRequests();
+    }
+}
+
+// Redirect to meeting room
+function launchMeeting(reqId) {
+    window.location.href = `session-room.html?id=${reqId}`;
 }
