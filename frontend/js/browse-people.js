@@ -223,8 +223,10 @@ function renderPeople() {
         // Best Match Ribbon
         const ribbon = person.bestMatch ? `<div class="best-match-badge">Best Match</div>` : "";
 
-        // Check if request was already sent to this person
-        const isSent = savedRequests.some(r => r.personId === person.id && r.status === 'pending');
+        // Check if request was already sent to this person from the current user
+        const currentUser = JSON.parse(localStorage.getItem('user'));
+        const currentUserId = currentUser ? currentUser.id : null;
+        const isSent = savedRequests.some(r => r.senderId === currentUserId && r.recipientId === person.id && r.status === 'pending');
         const btnText = isSent ? "Request Sent" : "Send Session Request";
         const btnClass = isSent ? "btn-request sent" : "btn-request";
         const btnDisabled = isSent ? "disabled" : "";
@@ -274,28 +276,112 @@ function renderPeople() {
 
 // Send request action
 function sendRequest(personId, fullName, skill, avatar) {
-    // Add to session_requests in localStorage
+    const currentUser = JSON.parse(localStorage.getItem('user'));
+    if (!currentUser) return;
+
+    // Check duplicate first
+    const savedRequests = JSON.parse(localStorage.getItem("session_requests")) || [];
+    if (savedRequests.some(r => r.senderId === currentUser.id && r.recipientId === personId && r.status === 'pending')) {
+        alert("A pending request was already sent to this user.");
+        return;
+    }
+
+    openBookingModal(personId, fullName, skill, avatar);
+}
+
+// Booking Modal control
+function openBookingModal(personId, fullName, skill, avatar) {
+    document.getElementById("modalPersonId").value = personId;
+    document.getElementById("modalPartnerFullName").value = fullName;
+    document.getElementById("modalPartnerSkill").value = skill;
+    document.getElementById("modalPartnerAvatarUrl").value = avatar;
+
+    document.getElementById("modalPartnerAvatar").src = avatar;
+    document.getElementById("modalPartnerAvatar").alt = fullName;
+    document.getElementById("modalPartnerName").textContent = fullName;
+    document.getElementById("modalSessionSkillLabel").innerHTML = `Teaches <span>${skill}</span>`;
+
+    // Default values: 2 days from now
+    const defaultDate = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    document.getElementById("bookingDateInput").value = defaultDate;
+    document.getElementById("bookingStartTimeInput").value = "14:00";
+    document.getElementById("bookingEndTimeInput").value = "15:00";
+
+    document.getElementById("bookingModal").classList.add("active");
+}
+
+function closeBookingModal() {
+    document.getElementById("bookingModal").classList.remove("active");
+    document.getElementById("bookingForm").reset();
+    
+    // Restore button state
+    const submitBtn = document.querySelector('#bookingForm .btn-modal-confirm');
+    if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Send Request";
+    }
+}
+
+function confirmBooking(event) {
+    event.preventDefault();
+
+    const currentUser = JSON.parse(localStorage.getItem('user'));
+    if (!currentUser) {
+        alert("You must be logged in to book a session.");
+        return;
+    }
+
+    const personId = parseInt(document.getElementById("modalPersonId").value, 10);
+    const fullName = document.getElementById("modalPartnerFullName").value;
+    const skill = document.getElementById("modalPartnerSkill").value;
+    const avatar = document.getElementById("modalPartnerAvatarUrl").value;
+
+    const selectedDate = document.getElementById("bookingDateInput").value;
+    const startTime = document.getElementById("bookingStartTimeInput").value;
+    const endTime = document.getElementById("bookingEndTimeInput").value;
+
+    if (!selectedDate || !startTime || !endTime) {
+        alert("Please fill in all booking fields.");
+        return;
+    }
+
+    const formattedTimeRange = `${startTime} - ${endTime}`;
+
     const savedRequests = JSON.parse(localStorage.getItem("session_requests")) || [];
     
-    // Check duplicate
-    if (savedRequests.some(r => r.personId === personId && r.status === 'pending')) return;
+    // Prevent double submission from concurrent clicks or race conditions
+    if (savedRequests.some(r => r.senderId === currentUser.id && r.recipientId === personId && r.status === 'pending')) {
+        alert("A pending request was already sent to this user.");
+        closeBookingModal();
+        return;
+    }
+
+    // Disable the submit button
+    const submitBtn = event.target.querySelector('.btn-modal-confirm');
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Sending...";
+    }
 
     // Create session request object
     const newRequest = {
         id: Date.now(),
-        personId: personId,
-        name: fullName,
-        avatar: avatar,
+        senderId: currentUser.id,
+        senderName: `${currentUser.firstName} ${currentUser.lastName}`,
+        senderAvatar: currentUser.avatar || "../images/avatar1.jpg",
+        recipientId: personId,
+        recipientName: fullName,
+        recipientAvatar: avatar,
         skill: skill,
-        date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 2 days from now
-        time: "14:00 - 15:00",
-        type: "outgoing",
+        date: selectedDate,
+        time: formattedTimeRange,
         status: "pending"
     };
 
     savedRequests.push(newRequest);
     localStorage.setItem("session_requests", JSON.stringify(savedRequests));
 
-    alert(`Session Request sent to ${fullName} for learning ${skill}!`);
+    alert(`Session Request sent to ${fullName} for learning ${skill} on ${selectedDate} at ${formattedTimeRange}!`);
+    closeBookingModal();
     renderPeople();
 }
