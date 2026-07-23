@@ -45,7 +45,7 @@ exports.getProfile = async (req, res) => {
                 avatar: user.avatar || '',
                 skillsTeach: user.skills_teach || '',
                 skillsLearn: user.skills_learn || '',
-                creditsEarned: user.credits_earned !== null ? user.credits_earned : 120,
+                creditsEarned: user.credits_earned !== null ? user.credits_earned : 15,
                 skillsTaughtCount: user.skills_taught_count !== null ? user.skills_taught_count : 45,
                 hoursLearned: user.hours_learned !== null ? user.hours_learned : 78,
                 achievements,
@@ -245,7 +245,7 @@ exports.searchProfiles = async (req, res) => {
             bio: u.bio || "",
             skillsTeach: u.skills_teach ? u.skills_teach.split(",") : [],
             skillsLearn: u.skills_learn ? u.skills_learn.split(",") : [],
-            creditsEarned: u.credits_earned !== null ? u.credits_earned : 120,
+            creditsEarned: u.credits_earned !== null ? u.credits_earned : 15,
             bestMatch: u.id % 2 === 1
         }));
 
