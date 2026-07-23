@@ -121,11 +121,50 @@
         </div>
     </main>
 
+    <!-- Fix Schedule Modal -->
+    <div id="scheduleModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Fix Session Schedule</h3>
+                <button class="modal-close-btn" onclick="closeScheduleModal()">&times;</button>
+            </div>
+            <div class="modal-session-summary">
+                <img id="modalPartnerAvatar" src="" alt="" class="modal-partner-avatar">
+                <div class="modal-partner-info">
+                    <h4 id="modalPartnerName">Partner Name</h4>
+                    <p id="modalSessionSkillLabel">Wants to learn <span>Skill Name</span></p>
+                </div>
+            </div>
+            <form id="scheduleForm" onsubmit="confirmSchedule(event)">
+                <input type="hidden" id="modalReqId">
+                <div class="modal-form-group">
+                    <label for="scheduleDateInput">📅 Date</label>
+                    <input type="date" id="scheduleDateInput" class="modal-input" required>
+                </div>
+                <div class="modal-time-range">
+                    <div class="modal-form-group">
+                        <label for="scheduleStartTimeInput">🕒 Start Time</label>
+                        <input type="time" id="scheduleStartTimeInput" class="modal-input" required>
+                    </div>
+                    <span class="modal-time-separator">to</span>
+                    <div class="modal-form-group">
+                        <label for="scheduleEndTimeInput">🕒 End Time</label>
+                        <input type="time" id="scheduleEndTimeInput" class="modal-input" required>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-modal-cancel" onclick="closeScheduleModal()">Cancel</button>
+                    <button type="submit" class="btn-modal-confirm">Confirm Schedule</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('active');
         }
     </script>
-    <script src="../js/session-request.js"></script>
+    <script src="../js/session-request.js?v=1.2"></script>
 </body>
 </html>
