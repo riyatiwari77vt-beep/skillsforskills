@@ -12,6 +12,10 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
+app.use((req, res, next) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  next();
+});
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
