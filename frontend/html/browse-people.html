@@ -147,11 +147,54 @@
         </div>
     </main>
 
+    <!-- Book Session Modal -->
+    <div id="bookingModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Book Session Request</h3>
+                <button class="modal-close-btn" onclick="closeBookingModal()">&times;</button>
+            </div>
+            <div class="modal-session-summary">
+                <img id="modalPartnerAvatar" src="" alt="" class="modal-partner-avatar">
+                <div class="modal-partner-info">
+                    <h4 id="modalPartnerName">Partner Name</h4>
+                    <p id="modalSessionSkillLabel">Teaches <span>Skill Name</span></p>
+                </div>
+            </div>
+            <form id="bookingForm" onsubmit="confirmBooking(event)">
+                <input type="hidden" id="modalPersonId">
+                <input type="hidden" id="modalPartnerAvatarUrl">
+                <input type="hidden" id="modalPartnerFullName">
+                <input type="hidden" id="modalPartnerSkill">
+                
+                <div class="modal-form-group">
+                    <label for="bookingDateInput">📅 Select Date</label>
+                    <input type="date" id="bookingDateInput" class="modal-input" required>
+                </div>
+                <div class="modal-time-range">
+                    <div class="modal-form-group">
+                        <label for="bookingStartTimeInput">🕒 Start Time</label>
+                        <input type="time" id="bookingStartTimeInput" class="modal-input" required>
+                    </div>
+                    <span class="modal-time-separator">to</span>
+                    <div class="modal-form-group">
+                        <label for="bookingEndTimeInput">🕒 End Time</label>
+                        <input type="time" id="bookingEndTimeInput" class="modal-input" required>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-modal-cancel" onclick="closeBookingModal()">Cancel</button>
+                    <button type="submit" class="btn-modal-confirm">Send Request</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('active');
         }
     </script>
-    <script src="../js/browse-people.js"></script>
+    <script src="../js/browse-people.js?v=1.2"></script>
 </body>
 </html>
