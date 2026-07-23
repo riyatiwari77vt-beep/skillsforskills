@@ -51,11 +51,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Populate headers
 function setupSessionRoomDetails() {
-    const isOutgoing = currentSession.type === "outgoing";
-    const partnerNameVal = currentSession.name;
+    const isOutgoing = currentSession.senderId === userSessionInfo.id;
+    const partnerNameVal = isOutgoing ? currentSession.recipientName : currentSession.senderName;
+    const partnerAvatarVal = isOutgoing ? currentSession.recipientAvatar : currentSession.senderAvatar;
     const skillNameVal = currentSession.skill;
 
-    document.getElementById("partnerAvatar").src = currentSession.avatar;
+    document.getElementById("partnerAvatar").src = partnerAvatarVal;
     document.getElementById("partnerName").textContent = partnerNameVal;
     document.getElementById("skillName").textContent = `Topic: ${skillNameVal}`;
 
@@ -69,8 +70,15 @@ function setupSessionRoomDetails() {
 
 // Instantiate Jitsi Meet iframe inside call pane
 function initJitsiCall(sessionId) {
+    if (typeof JitsiMeetExternalAPI === 'undefined') {
+        console.warn("Jitsi Meet External API not found. Loading local mock call room instead.");
+        loadMockVideoCall();
+        return;
+    }
+
     // Create unique room name string
-    const sanitizedRoom = `BarterLearn_Room_${sessionId}_${currentSession.name.replace(/\s+/g, '_')}`;
+    const partnerNameVal = currentSession.senderId === userSessionInfo.id ? currentSession.recipientName : currentSession.senderName;
+    const sanitizedRoom = `BarterLearn_Room_${sessionId}_${partnerNameVal.replace(/\s+/g, '_')}`;
     const domain = "meet.jit.si";
 
     const options = {
@@ -173,7 +181,9 @@ async function confirmEndSession() {
     // Determine type:
     // If outgoing request -> You are Learner (sessionType = 'learn')
     // If incoming request -> You are Teacher (sessionType = 'teach')
-    const sessionType = currentSession.type === "outgoing" ? "learn" : "teach";
+    const isOutgoing = currentSession.senderId === userSessionInfo.id;
+    const sessionType = isOutgoing ? "learn" : "teach";
+    const partnerNameVal = isOutgoing ? currentSession.recipientName : currentSession.senderName;
 
     try {
         const response = await fetch('/api/profile/complete-session', {
@@ -184,7 +194,7 @@ async function confirmEndSession() {
             },
             body: JSON.stringify({
                 sessionType: sessionType,
-                partnerName: currentSession.name,
+                partnerName: partnerNameVal,
                 skillName: currentSession.skill
             })
         });
@@ -215,4 +225,55 @@ async function confirmEndSession() {
         alert("Failed to reach server. Session progress saved locally. Redirecting to reviews...");
         window.location.href = "reviews.html";
     }
+}
+
+// Fallback Mock Call
+function loadMockVideoCall() {
+    // Hide spinner
+    document.getElementById("connectingState").style.display = "none";
+    
+    const isOutgoing = currentSession.senderId === userSessionInfo.id;
+    const partnerNameVal = isOutgoing ? currentSession.recipientName : currentSession.senderName;
+    const partnerAvatarVal = isOutgoing ? currentSession.recipientAvatar : currentSession.senderAvatar;
+    
+    const meetContainer = document.querySelector('#meetContainer');
+    meetContainer.innerHTML = `
+        <div class="mock-video-grid">
+            <!-- Remote User Feed -->
+            <div class="video-feed-box partner">
+                <img src="${partnerAvatarVal}" alt="${partnerNameVal}" class="feed-avatar">
+                <div class="feed-name-tag">${partnerNameVal}</div>
+                <div class="feed-status-tag">Connected</div>
+                <div class="audio-wave-bars">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </div>
+            </div>
+            <!-- Local User Feed -->
+            <div class="video-feed-box local">
+                <div class="feed-avatar-placeholder">${(userSessionInfo.firstName.charAt(0) + userSessionInfo.lastName.charAt(0)).toUpperCase()}</div>
+                <div class="feed-name-tag">You</div>
+                <div class="feed-status-tag" id="localCameraStatus">Camera On</div>
+                <video id="localCamStream" autoplay playsinline style="width:100%; height:100%; object-fit:cover; display:none; border-radius:var(--radius-sm);"></video>
+            </div>
+        </div>
+    `;
+    
+    // Add webcam stream if permission is granted
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+        .then(stream => {
+            const videoEl = document.getElementById("localCamStream");
+            if (videoEl) {
+                videoEl.srcObject = stream;
+                videoEl.style.display = "block";
+                const placeholder = document.querySelector('.video-feed-box.local .feed-avatar-placeholder');
+                if (placeholder) placeholder.style.display = "none";
+            }
+        })
+        .catch(err => {
+            console.log("Webcam not loaded or permission denied:", err.message);
+            const statusTag = document.getElementById("localCameraStatus");
+            if (statusTag) statusTag.textContent = "Camera Off";
+        });
 }
